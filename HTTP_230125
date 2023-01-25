@@ -1,0 +1,29 @@
+*HTML API?
+HTML에서 Form대신 자바 스크립트를 통한 통신(AJAX)에 사용한다.
+ex) React, Vue JS와 같은 웹클라이언트와 API 통신
+
+
+1. HTML Form 사용
+- 회원 목록 : /members + GET
+- 회원 등록 폼 : /members/new + GET
+- 회원 등록 : /members/new, /members + POST
+- 회원 조회 : /members/{id} + GET
+- 회원 수정 폼 : /members/{id}/edit + GET
+- 회원 수정 : /members/{id}/edit, /members/{id} + POST
+- 회원 삭제 : /members/{id}/delete + POST
+
+1. HTML Form 특징
+- GET, POST만 지원하므로 제약이 있다.
+- 때문에 동사로 된 리소스 경로를 사용한다
+- HTTP 메서드로 해결하기 애매한 경우, 컨트롤 URI를 사용한다 (컨트롤 URI는 HTML API도 포함한다)
+
+*컨트롤 URI?
+POST의 /new, /edit, /delete가 컨트롤 URI이다. 즉, '동사'라 생각하면 된다.
+
+
+!!! 마지막 꿀팁 !!!!
+https://restfulapi.net/resource-naming을 참고하자
+- 문서 (단일개념, 파일 하나)
+- 컬렉션 (서버가 관리하는 리소스 디렉토리, /members)
+- 스토어 (클라이언트가 관리하는 자원 저장소, 전체 경로를 다 알고 넣어줘야함)
+- 컨트롤러, 컨트롤 URI (동사)
