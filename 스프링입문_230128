@@ -1,0 +1,27 @@
+1. 정적 컨텐츠
+기본적으로 스프링부트는 정적 컨텐츠를 제공한다.
+!!! 중요 !!!
+과정 설명 : 웹 브라우저가 요청(localhost:8080/hello-static.html) -> 내장 톰캣 서버 -> 스프링 컨테이너로 들어감
+-> 그런데, hello-static 관련 컨트롤러가 없다! -> 다시 내장 톰캣 서버 -> resources의 static/hello-static.html을 찾음
+
+2. MVC와 템플릿 엔진 (html을 동적으로 처리하고 내림)
+MVC : Model, View, Controller : Controller는 뒷단의 일, View는 화면에 보여주는 일을 한다고 생각하자
+!!! 중요 !!!
+과정 설명 : 웹 브라우저가 요청(localhost:8080/hello-mvc) -> 내장 톰캣 서버 -> 스프링 컨테이너로 들어감
+-> helloController를 찾는다 -> 여기서, @GetMapping(hello-mvc)를 찾는다
+-> 해당 함수의 return값, 매개변수를 확인한다. 강의에서는 model(name:spring)이다.
+-> viewResolver로 가서, templates/hello-template.html을 찾는다 -> thymleaf 템플릿 엔진이 화면에 렌더링
+
+3. API (안드로이드, 아이폰을 개발할 때, 요즘에는 json이라는 포맷으로 전달함
+위의 MVC와 동일하게 동작하나, @GetMapping외에도 @ResponseBody를 넣어주어야한다
+(@ResponseBody 의미는 HTTP의 body부에 return값을 그대로 넣어준다는 의미이다)
+
+*만약 문자가 아니라 어떤 데이터를 내놓으라고하면?
+json은 key-value 구조이다. 이것은 하단의 구조를 따른다.
+- @GetMapping + @ResponseBody + public Hello (객체선언, 객체.set)
+- static class(객체, getter & setter)
+!!! 중요 !!!
+과정 설명 : 웹 브라우저가 요청(localhost:8080/hello-mvc) -> 내장 톰캣 서버 -> 스프링 컨테이너로 들어감
+-> helloController를 찾는다 -> 여기서 @ResponseBody가 있네!
+-> 그러면 viewResolver가 아닌 'HTTPMessageConverter'가 실행된다.
+-> string이면 'StringConverter'가, Json이면 'JsonConverter'가 실행된다
