@@ -1,0 +1,103 @@
+4. 회원 서비스 개발
+- 실제 비즈니스 로직을 개발하는 단계이다.
+- main에 service라는 package를 만든다. 거기에 MemberService라는 class를 만든다.
+  private final MemberRepository memberRepository = new MemoryMemberRepository()
+  1. 회원가입
+  public Long join(Member member){
+    memberRepository.save(member)
+    return member.getId()
+  }
+  2. 전체 회원 조회
+  public List<Member> findMembers(){
+    return memberRepository.findAll()
+  }
+  3. 회원 조회 (id받아서)
+  public Optional<Member> findOne(Long memberId){
+    return memberRepository.findById(memberId)
+  }
+
+5. 회원 서비스 테스트
+- 앞서 만든 회원가입에 '중복 회원 검증' 함수를 만들어 넣자
+  4. 중복 회원 검증 함수
+  private void validateDuplicateMember(Member member){
+    memberRepository.findByName(member.getName()) -> optional형태로 반환이 되겠구나!
+                    .ifPresent(m -> {
+                        throw new IllegalStateException("이미 존재하는 회원입니다.")
+                    })
+  }
+  
+- test 생성
+  * 단축키로 간단하게 생성할 수 있으니, 꼭 확인하자
+  class MemberServiceTeset{
+    MemberService memberService = new MemberService()
+    
+    @Test
+    void 회원가입(){
+      //given
+      Member member = new Member()
+      member.setName("hello")
+      
+      //when
+      Long saveId = memberService.join(member)
+      
+      //then
+      Member findMember = memberService.findOne(saveId).get()
+      Assertions.assertThat(member.getName()).isEqualTo(findMember.getName())
+    }
+    
+    //중복회원 검증하는지!
+    @Test
+    public void 중복_회원_예외(){
+      //given
+      Member member1 = new Member()
+      member1.setName("spring")
+      
+      Member member2 = new Member()
+      member2.setName("spring")
+      
+      //when
+      memberService.join(member1)
+      try{
+          memberService.join(member2) -> 예외 터져야한다!
+          fail()
+      } 
+      catch (IllegalStateException e){
+          Assertions.assertThat(e.getMessage()).isEqualTo("이미 존재하는 회원입니다.")
+      }
+      
+      *try-catch 문 대신, assertThrows를 사용할 수 있다.
+      assertThrows(IllegalStateException.class, () -> memberService.join(member2))
+      assertThrows(a,b) : b가 일어날건데, a가 발생해야한다.
+      
+      //then
+    }
+    
+- 각 test마다 dB에 저장되는걸 clear 해주기 위해 repository 객체를 추가해준다
+  MemoryMemberRepository memberRepository = new MemoryMemberRepository()
+  *memberService 객체만으론 clear 불가능하니까
+  
+  @AfterEach
+  public void afterEach(){
+    memberRepository.clearStore()
+  }
+  
+- MemberService class에도 MemberRepository 객체를 선언하고 있고,
+  MemberServiceTest class에도 MemberRepository 객체를 선언하고 있네. 
+  이건 서로 다른 인스턴스 아닌가, 문제가 없으려면 합쳐야할 것 같은데.!
+  
+  MemberService class를 살짝 수정해보자 (밖에서 받아오게)
+  private final MemberRepository memberRepository
+  public MemberService(MemberRepository memberRepository){
+    this.memberRepository = memberRepository
+  }
+  
+  MemberServiceTest class도 살짝 수정해보자 (beforeeach 즉 구문 실행 전, memberRepository 객체생성 + memberService 객체생성(memberRepository 매개변수로 넣어줌))
+  
+  MemberService memberService
+  MemoryMemberRepository memberRepository
+  @BeforeEAch
+  public void beforeEach(){
+    memberRepository = new MemoryMemberRepository()
+    memberService = new MemberService(memberRepository)
+  }
+  
